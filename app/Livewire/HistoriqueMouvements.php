@@ -12,6 +12,8 @@ class HistoriqueMouvements extends Component
 
     public string $type = '';
     public string $recherche = '';
+    public string $dateDe = '';
+    public string $dateA = '';
 
     public function updatingType(): void
     {
@@ -23,11 +25,29 @@ class HistoriqueMouvements extends Component
         $this->resetPage();
     }
 
+    public function updatingDateDe(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDateA(): void
+    {
+        $this->resetPage();
+    }
+
+    public function reinitialiser(): void
+    {
+        $this->reset(['type', 'recherche', 'dateDe', 'dateA']);
+        $this->resetPage();
+    }
+
     public function render()
     {
         $mouvements = MouvementStock::with(['produit', 'categorie.produit', 'user'])
             ->when($this->type, fn ($q) => $q->where('type', $this->type))
-            ->when($this->recherche, fn ($q) => $q->where('reference_doc', 'ilike', '%'.$this->recherche.'%'))
+            ->when($this->recherche, fn ($q) => $q->whereRaw('LOWER(reference_doc) LIKE ?', ['%'.mb_strtolower($this->recherche).'%']))
+            ->when($this->dateDe, fn ($q) => $q->whereDate('created_at', '>=', $this->dateDe))
+            ->when($this->dateA, fn ($q) => $q->whereDate('created_at', '<=', $this->dateA))
             ->latest('id')
             ->paginate(20);
 

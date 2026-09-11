@@ -11,24 +11,31 @@ class GestionTypes extends Component
     public string $nom = '';
     public string $description = '';
     public ?int $editingId = null;
+    public bool $modalType = false;
     public string $message = '';
 
-    protected function rules(): array
+    public function ouvrirModalType(): void
     {
-        return [
-            'nom' => ['required', 'string', 'max:100', Rule::unique('types', 'nom')->ignore($this->editingId)],
-            'description' => 'nullable|string|max:500',
-        ];
+        $this->reset(['nom', 'description', 'editingId']);
+        $this->modalType = true;
+    }
+
+    public function fermerModalType(): void
+    {
+        $this->modalType = false;
     }
 
     public function save(): void
     {
-        $this->validate();
+        $this->validate([
+            'nom' => ['required', 'string', 'max:100', Rule::unique('types', 'nom')->ignore($this->editingId)],
+            'description' => 'nullable|string|max:500',
+        ]);
         Type::updateOrCreate(['id' => $this->editingId], [
             'nom' => $this->nom, 'description' => $this->description ?: null,
         ]);
-        $this->message = 'Type enregistré.';
-        $this->reset(['nom', 'description', 'editingId']);
+        $this->message = $this->editingId ? 'Type modifié.' : 'Type créé.';
+        $this->modalType = false;
     }
 
     public function edit(int $id): void
@@ -37,6 +44,7 @@ class GestionTypes extends Component
         $this->editingId = $t->id;
         $this->nom = $t->nom;
         $this->description = (string) $t->description;
+        $this->modalType = true;
     }
 
     public function delete(int $id): void

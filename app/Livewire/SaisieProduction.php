@@ -80,11 +80,24 @@ class SaisieProduction extends Component
         return $articles;
     }
 
+    /** @var array<int, true> ids des productions dépliées */
+    public array $ouvertes = [];
+
+    public function basculerProduction(int $id): void
+    {
+        if (isset($this->ouvertes[$id])) {
+            unset($this->ouvertes[$id]);
+        } else {
+            $this->ouvertes[$id] = true;
+        }
+    }
+
     public function render()
     {
         return view('livewire.saisie-production', [
             'articles' => $this->articles(),
-            'productions' => \App\Models\Production::withCount('lignes')->latest('id')->limit(10)->get(),
+            'productions' => \App\Models\Production::with(['lignes.produit', 'lignes.categorie.produit'])
+                ->latest('id')->limit(10)->get(),
         ]);
     }
 }
