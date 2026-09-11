@@ -1,14 +1,14 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false, confirmingLogout: false, logoutForm: null }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <!-- Logo -->
+                <!-- Logo 
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
-                </div>
+                </div>-->
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-1 sm:-my-px sm:ms-10 sm:flex sm:items-center">
@@ -60,7 +60,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            Profil
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -68,9 +68,8 @@
                             @csrf
 
                             <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                    @click.prevent="logoutForm = $el.closest('form'); confirmingLogout = true;">
+                                Se déconnecter
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -124,7 +123,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    Profil
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
@@ -132,11 +131,32 @@
                     @csrf
 
                     <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                            @click.prevent="logoutForm = $el.closest('form'); confirmingLogout = true;">
+                        Se déconnecter
                     </x-responsive-nav-link>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale de confirmation de déconnexion -->
+    <div x-show="confirmingLogout" x-cloak class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="fixed inset-0 bg-slate-900 bg-opacity-50" @click="confirmingLogout = false"></div>
+            <div class="relative bg-white rounded-xl shadow-xl p-6 w-full max-w-md my-8">
+                <div class="flex items-start gap-3">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    </span>
+                    <div>
+                        <h3 class="font-semibold text-lg text-slate-800 leading-tight">Se déconnecter ?</h3>
+                        <p class="text-sm text-slate-500 mt-1">Tu devras te reconnecter pour accéder à la gestion de stock.</p>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button @click="confirmingLogout = false" class="text-sm font-medium text-slate-500 hover:bg-slate-100 px-4 py-2 rounded-lg transition">Annuler</button>
+                    <button @click="logoutForm.submit()" class="bg-red-600 hover:bg-red-700 transition text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm">Se déconnecter</button>
+                </div>
             </div>
         </div>
     </div>
